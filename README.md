@@ -19,11 +19,13 @@ Interface: Answer Questions, Add Questions, Delete Questions, View Questions -> 
 
 >>>Details:
 
--memorization counter levels: 1 day | 7 days | 16 days | 35 days | 75 days | 200 days
+-memorization counter levels: 1 day | 7 days | 21 days | 75 days | 240 days
 --then after 200 days, it repeats every 200 days
 (Based on Piotr Wozniak's research)
 -scale: 0 - moves the memorization counter back one, 1 - keeps counter as is, 2 - moves the counter forward one, 3 - moves the counter forward two
 -^ or scale could be a five star scale that the user selects
+-also, when you answer a question, the memorization counter level for the
+question should vary based on how confident you feel answering it (before moving on to the next question you choose 1, 2, or 3 stars: {1: move counter back one, 2: keep counter the same, 3: progress counter normally} )
 
 >>>Objects:
 
