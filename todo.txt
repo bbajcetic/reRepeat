@@ -1,0 +1,6 @@
+-Make the different views:
+ -homepage view->links to other views
+ -answer questions view->gives you options (by tags, by dates, etc.)
+ -add questions view->gives you options to add questions
+ -edit questions view->gives you options (edit/change properties, delete, etc.)
+
