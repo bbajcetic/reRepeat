@@ -2,13 +2,10 @@
 
 {% block content %}
 	<h4>Add Questions</h4>
-	{% if question_list %}
-		<ul>
-		{% for question in question_list %}
-		<li><a href="{% url 'app_reRepeat:question' question.id %}">{{ question.question_text }}</a></li>
-		{% endfor %}
-		</ul>
-	{% else %}
-		<p>You have no questions.</p>
-	{% endif %}
+		<form action="{% url 'app_reRepeat:add_confirm' %}" method="post">
+		{% csrf_token %}
+			Question: <input type="text" name="question_text"><br>
+			Answer&nbsp&nbsp: <input type="text" name="answer_text"><br>
+			<input type="submit" value="Create Question">
+		</form>
 {% endblock %}
