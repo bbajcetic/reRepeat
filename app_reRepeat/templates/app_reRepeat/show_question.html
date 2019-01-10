@@ -1,4 +1,6 @@
 {% extends 'app_reRepeat/base.html' %}
 {% block content %}
-	{{ question }}
+	<h4><u>Question {{ question.id }}</u></h4>
+	Question: {{ question.question_text }}
+	</br>Answer: {{ question.answer_text }}
 {% endblock %}
