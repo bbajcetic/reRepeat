@@ -45,4 +45,17 @@ def add_confirm(request):
     new_question.save()
     new_id = new_question.pk
 
-    return HttpResponseRedirect(reverse('app_reRepeat:question', args=(new_id,)))
+    return HttpResponseRedirect(reverse('app_reRepeat:show_question', args=(new_id,)))
+
+def update_confirm(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    question.question_text=request.POST['question_text']
+    question.answer_text=request.POST['answer_text']
+    question.save()
+
+    return HttpResponseRedirect(reverse('app_reRepeat:show_question', args=(question_id,)))
+
+def edit_question(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    context = {'question':question,}
+    return render(request, 'app_reRepeat/edit_question.html', context)
