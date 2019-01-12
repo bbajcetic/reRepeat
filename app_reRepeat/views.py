@@ -19,9 +19,7 @@ def index(request):
     return render(request, 'app_reRepeat/index.html')
 
 def answer_questions(request):
-    question_list = Question.objects.all()
-    context = {'question_list':question_list,}
-    return render(request, 'app_reRepeat/answer.html', context)
+    return render(request, 'app_reRepeat/answer.html')
 
 def add_questions(request):
     question_list = Question.objects.all()
@@ -72,3 +70,10 @@ def delete_question(request, question_id):
         return HttpResponseRedirect(reverse('app_reRepeat:edit'))
     elif request.POST.get('not_delete', False):
         return HttpResponseRedirect(reverse('app_reRepeat:edit_question', args=(question_id,)))
+
+def answer_setup(request):
+    #get setup info (tags to answer, etc.)
+    return HttpResponseRedirect(reverse('app_reRepeat:home'))
+
+def answer_question(request):
+    return HttpResponseRedirect(reverse('app_reRepeat:home'))

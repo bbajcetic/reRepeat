@@ -2,13 +2,10 @@
 
 {% block content %}
 	<h4>Answer Questions</h4>
-	{% if question_list %}
-		<ul>
-		{% for question in question_list %}
-		<li><a href="{% url 'app_reRepeat:show_question' question.id %}">{{ question.question_text }}</a></li>
-		{% endfor %}
-		</ul>
-	{% else %}
-		<p>You have no questions.</p>
-	{% endif %}
+	<form action="{% url 'app_reRepeat:answer_setup' %}" method="post">
+	{% csrf_token %}
+		Tags (leave blank for all questions): <input type="text" name="tags"><br>
+		<input type="submit" value="Start Answering">
+	</form>
+
 {% endblock %}
