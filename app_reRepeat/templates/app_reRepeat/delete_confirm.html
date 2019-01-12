@@ -1,0 +1,12 @@
+{% extends 'app_reRepeat/base.html' %}
+{% block content %}
+<h4>Delete Question</h4>
+
+	Are you sure you want to delete this question?
+	<form action="{% url 'app_reRepeat:delete_question' question.id %}" method="post">
+	{% csrf_token %}
+		<input type="submit" name="delete" value="YES">
+		<input type="submit" name="not_delete" value="NO"><br>
+	</form>
+
+{% endblock %}

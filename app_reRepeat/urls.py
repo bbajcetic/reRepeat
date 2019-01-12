@@ -13,4 +13,6 @@ urlpatterns = [
         path('<int:question_id>/edit/', views.edit_question, name="edit_question"),
         path('add/add_confirm/', views.add_confirm, name="add_confirm"),
         path('edit/update_confirm/<int:question_id>/', views.update_confirm, name="update_confirm"),
+        path('edit/delete_confirm/<int:question_id>/', views.delete_confirm, name="delete_confirm"),
+        path('<int:question_id>/delete/', views.delete_question, name="delete_question"),
 ]

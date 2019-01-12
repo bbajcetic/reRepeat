@@ -1,11 +1,15 @@
 {% extends 'app_reRepeat/base.html' %}
 {% block content %}
-    EDIT QUESTION template
+<h4>Edit Question</h4>
 	<form action="{% url 'app_reRepeat:update_confirm' question.id %}" method="post">
 	{% csrf_token %}
 		Update Question: <input type="text" name="question_text" value="{{ question.question_text }}"><br>
 		Update Answer&nbsp&nbsp: <input type="text" name="answer_text" value="{{ question.answer_text }}"><br>
 		<input type="submit" value="Update Question">
+	</form>
+	<form action="{% url 'app_reRepeat:delete_confirm' question.id %}" method="post">
+	{% csrf_token %}
+		<input type="submit" value="DELETE QUESTION">
 	</form>
 
 {% endblock %}

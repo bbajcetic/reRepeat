@@ -55,7 +55,20 @@ def update_confirm(request, question_id):
 
     return HttpResponseRedirect(reverse('app_reRepeat:show_question', args=(question_id,)))
 
+def delete_confirm(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    context = {'question':question,}
+    return render(request, 'app_reRepeat/delete_confirm.html', context)
+
 def edit_question(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     context = {'question':question,}
     return render(request, 'app_reRepeat/edit_question.html', context)
+
+def delete_question(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    if request.POST.get('delete', False):
+        question.delete()
+        return HttpResponseRedirect(reverse('app_reRepeat:edit'))
+    elif request.POST.get('not_delete', False):
+        return HttpResponseRedirect(reverse('app_reRepeat:edit_question', args=(question_id,)))
