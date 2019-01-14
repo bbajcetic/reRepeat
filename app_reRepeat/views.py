@@ -73,7 +73,26 @@ def delete_question(request, question_id):
 
 def answer_setup(request):
     #get setup info (tags to answer, etc.)
-    return HttpResponseRedirect(reverse('app_reRepeat:home'))
+    #for actual setup, there will be an html page for this where you have to click continue and then it redirects to answer_question
+    #^for now though, just redirect to answer_question
+    return HttpResponseRedirect(reverse('app_reRepeat:answer_question', args=(0,)))
 
-def answer_question(request):
-    return HttpResponseRedirect(reverse('app_reRepeat:home'))
+def process_answer(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    #process the answer and update the question counter, etc.
+    return HttpResponseRedirect(reverse('app_reRepeat:answer_question', args=(0,)))
+
+def answer_question(request, show_answer):
+    question_list = Question.objects.all()
+    if not question_list.exists():
+        pass
+        #return and let the user know there are no questions that are ready
+    next_question = -1
+    for q in question_list:
+        if q.is_ready():
+            if next_question == -1:
+                next_question = q
+            elif q.update_date > next_question.update_date:
+                next_question = q
+    context = {'question':next_question, 'show_answer':show_answer,}
+    return render(request, 'app_reRepeat/answer_question.html', context)

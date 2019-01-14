@@ -1,4 +1,4 @@
- -answering question view searches all the questions and checks if each question is overdue to answer, and out of the overdue ones, it grabs the one with the lowest counter level because those being overdue is more important than the old questions (except later maybe queue them, so that the higher counter level options don't get starved and never answered if you're a little behind with answering questions) 
+ -maybe later maybe queue the questions, because right now the question with the most recent update date (that is ready for review) is answered, so don't want to starve the older questions in case the user is a little behind with answering questions
  -answer questions view->gives you options (by tags, by dates, etc.)
  -add view for answering a question and rating how well you know it
  -add tags when creating a question
