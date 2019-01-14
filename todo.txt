@@ -1,6 +1,9 @@
--Make the different views:
- -homepage view->links to other views
+ -answering question view searches all the questions and checks if each question is overdue to answer, and out of the overdue ones, it grabs the one with the lowest counter level because those being overdue is more important than the old questions (except later maybe queue them, so that the higher counter level options don't get starved and never answered if you're a little behind with answering questions) 
  -answer questions view->gives you options (by tags, by dates, etc.)
- -add questions view->gives you options to add questions
- -edit questions view->gives you options (edit/change properties, delete, etc.)
-
+ -add view for answering a question and rating how well you know it
+ -add tags when creating a question
+ -allow users to answer questions that are almost ready (>=90% ready)
+ -allow users to skip questions
+ -when in show_question view, don't label question with its id because its number is irrelevant and some numbers will be skipped if they are deleted (e.g. 3 questions, ids might be 1,2,and 4)
+ -finish reading the 7 step tutorial and integrating the way they do their views/urls into this app (since they initially show you a long way and then show you a very efficient way)
+ -make question and answer text boxes bigger (maybe by changing the default django widgets for the type of model attribute to be a large text box instead)
