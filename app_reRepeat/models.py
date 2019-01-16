@@ -13,6 +13,9 @@ class Question(models.Model):
     counter_level = models.IntegerField(default=1) #0-4
     periods = [1,7,21,75,240]
     skip = models.BooleanField(default=False)
+    def is_skipped(self):
+        return self.skip
+
     #check if question will be ready to review soon:
     #def ready_soon(self):
     def review_percent(self):

@@ -14,8 +14,13 @@
 		Answer: {{ question.answer_text }}
 		<form action="{% url 'app_reRepeat:process_answer' question.id %}" method="post">
 		{% csrf_token %}
-			<input type="submit" value="Next Question">
+			<input type="submit" value="Next Question" name="next">
 		</form>
 	{% endif %}
+
+	<form action="{% url 'app_reRepeat:process_answer' question.id %}" method="post">
+	{% csrf_token %}
+		<input type="submit" value="SKIP" name="skip">
+	</form>
 {% endblock %}
 

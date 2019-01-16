@@ -71,7 +71,19 @@ def delete_question(request, question_id):
     elif request.POST.get('not_delete', False):
         return HttpResponseRedirect(reverse('app_reRepeat:edit_question', args=(question_id,)))
 
+def reset_skipped():
+    skipped = False
+    #reset all skipped questions to unskipped
+    question_list = Question.objects.all()
+    for q in question_list:
+        if q.skip == True:
+            q.skip = False
+            q.save()
+            skipped = True
+    return skipped
+
 def answer_setup(request):
+    reset_skipped()
     #get setup info (tags to answer, etc.)
     #for actual setup, there will be an html page for this where you have to click continue and then it redirects to answer_question
     #^for now though, just redirect to answer_question
@@ -79,26 +91,34 @@ def answer_setup(request):
 
 def process_answer(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
-    #process the answer and update the question counter, etc:
-    question.update_counter()
-    question.save()
+    if request.POST['skip']:
+        question.skip = True
+        question.save()
+    elif request.POST['next']:
+        #process the answer and update the question counter, etc:
+        question.update_counter()
+        question.save()
     return HttpResponseRedirect(reverse('app_reRepeat:answer_question', args=(0,)))
 
 def answer_question(request, show_answer):
     question_list = Question.objects.all()
     if not question_list.exists():
-        pass
-        #return and let the user know there are no questions that are ready
+        return HttpResponseRedirect(reverse('app_reRepeat:answer'))
+        #let the user know there are no questions
     next_question = -1
     for q in question_list:
-        if q.is_ready():
+        if q.is_ready() and not q.is_skipped():
             if next_question == -1:
                 next_question = q
             elif q.review_percent() > next_question.review_percent():
                 next_question = q
     context = {'question':next_question, 'show_answer':show_answer,}
     if next_question == -1:
-        #also return message for no questions to answer
-        return HttpResponseRedirect(reverse('app_reRepeat:answer'))
+        if reset_skipped() == True:
+            return HttpResponseRedirect(reverse('app_reRepeat:answer_question', args=(0,)))
+        else:
+            #also return message for no questions to answer
+            return HttpResponseRedirect(reverse('app_reRepeat:answer'))
     else:
         return render(request, 'app_reRepeat/answer_question.html', context)
+
