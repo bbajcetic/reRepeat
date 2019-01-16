@@ -12,6 +12,7 @@ class Question(models.Model):
     #counter is from 0-4 inclusive, with 0 being the worst
     counter_level = models.IntegerField(default=1) #0-4
     periods = [1,7,21,75,240]
+    skip = models.BooleanField(default=False)
     #check if question will be ready to review soon:
     #def ready_soon(self):
     def review_percent(self):
