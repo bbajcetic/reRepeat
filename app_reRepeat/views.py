@@ -4,6 +4,7 @@ from django.template import loader
 from django.urls import reverse
 from django.utils import timezone
 from .models import Question
+import re
 
 ##first way: fill context, load template, return Http object with the result of rendered template
 #def index(request):
@@ -39,7 +40,11 @@ def show_question(request, question_id):
 def add_confirm(request):
     q_text = request.POST['question_text']
     a_text = request.POST['answer_text']
-    new_question = Question(question_text=q_text,answer_text=a_text,update_date=timezone.now())
+    tags = request.POST['tags']
+    tag_pattern = re.compile("[^,a-zA-Z0-9]*")
+    if tag_pattern.search(tags):
+        tags = ""
+    new_question = Question(question_text=q_text,answer_text=a_text,tags=tags,update_date=timezone.now())
     new_question.save()
     new_id = new_question.pk
 
@@ -49,6 +54,12 @@ def update_confirm(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     question.question_text=request.POST['question_text']
     question.answer_text=request.POST['answer_text']
+    tags = request.POST['tags']
+    tag_pattern = re.compile("[^,a-zA-Z0-9]")
+    if tag_pattern.search(tags):
+        tags = ""
+    question.tags=tags
+
     question.save()
 
     return HttpResponseRedirect(reverse('app_reRepeat:show_question', args=(question_id,)))

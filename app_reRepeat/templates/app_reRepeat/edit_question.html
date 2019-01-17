@@ -3,8 +3,10 @@
 <h4>Edit Question</h4>
 	<form action="{% url 'app_reRepeat:update_confirm' question.id %}" method="post">
 	{% csrf_token %}
-		Update Question: <input type="text" name="question_text" value="{{ question.question_text }}"><br>
-		Update Answer&nbsp&nbsp: <input type="text" name="answer_text" value="{{ question.answer_text }}"><br>
+
+		<pre>Update Question: <textarea cols="40" rows="4" name="question_text">{{ question.question_text }}</textarea></pre>
+		<pre>Update Answer:   <textarea cols="40" rows="8" name="answer_text">{{ question.answer_text }}</textarea></pre>
+		<pre>Update Tags:     <textarea cols="40" rows="1" name="tags">{{ question.tags }}</textarea></pre>
 		<input type="submit" value="Update Question">
 	</form>
 	<form action="{% url 'app_reRepeat:delete_confirm' question.id %}" method="post">

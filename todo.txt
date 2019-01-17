@@ -1,8 +1,6 @@
- -make question and answer text boxes bigger (maybe by changing the default django widgets for the type of model attribute to be a large text box instead)
  -print messages for certain things like when there are no more questions to answer or when a question is added or edited successfully
  -answer questions view->gives you options (by tags, by dates, etc.)
  -add view for answering a question and rating how well you know it?
- -add tags when creating a question
  -allow users to answer questions that are almost ready (>=90% ready)
  -also on homepage show how many questions need to be reviewed and how many are close to being twice as long (which would cause counter to remain the same)
  -when in show_question view, don't label question with its id because its number is irrelevant and some numbers will be skipped if they are deleted (e.g. 3 questions, ids might be 1,2,and 4)
