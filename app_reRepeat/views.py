@@ -37,11 +37,17 @@ def show_question(request, question_id):
     context = {'question':question,}
     return render(request, 'app_reRepeat/show_question.html', context)
 
+def get_tag_list(tag_string):
+    tag_list = tag_string.lower().split(',')
+    tag_list = list(tag.replace(' ','') for tag in tag_list)
+    tag_list = list(filter(None, tag_list))
+    return tag_list
+
 def add_confirm(request):
     q_text = request.POST['question_text']
     a_text = request.POST['answer_text']
     tags = request.POST['tags']
-    tag_pattern = re.compile("[^,a-zA-Z0-9]*")
+    tag_pattern = re.compile("[^ ,a-zA-Z0-9]")
     if tag_pattern.search(tags):
         tags = ""
     new_question = Question(question_text=q_text,answer_text=a_text,tags=tags,update_date=timezone.now())
@@ -55,10 +61,9 @@ def update_confirm(request, question_id):
     question.question_text=request.POST['question_text']
     question.answer_text=request.POST['answer_text']
     tags = request.POST['tags']
-    tag_pattern = re.compile("[^,a-zA-Z0-9]")
-    if tag_pattern.search(tags):
-        tags = ""
-    question.tags=tags
+    tag_pattern = re.compile("[^ ,a-zA-Z0-9]")
+    if not tag_pattern.search(tags):
+        question.tags=tags
 
     question.save()
 
