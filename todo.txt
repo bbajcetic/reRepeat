@@ -1,11 +1,10 @@
  -there need to be able to be users with different accounts and their own questions and database tables, etc.
- -make tags case insensitive so that CMPT354 is the same tag as cmpt354, etc.
+ -favourite tags choice for user
  -print messages for certain things like when there are no more questions to answer or when a question is added or edited successfully
  -answer questions view->gives you options (by tags, by dates, etc.)
  -add view for answering a question and rating how well you know it?
  -allow users to answer questions that are almost ready (>=90% ready)
  -also on homepage show how many questions need to be reviewed and how many are close to being twice as long (which would cause counter to remain the same)
- -when in show_question view, don't label question with its id because its number is irrelevant and some numbers will be skipped if they are deleted (e.g. 3 questions, ids might be 1,2,and 4)
  -finish reading the 7 step tutorial and integrating the way they do their views/urls into this app (since they initially show you a long way and then show you a very efficient way)
  -add test cases for functions, especially ones that update objects and deal with the main program logic
  -how can I keep updating my app while using it

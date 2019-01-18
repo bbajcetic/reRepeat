@@ -6,6 +6,8 @@ from django.utils import timezone
 from .models import Question
 import re
 
+TAG_LIST = []
+
 ##first way: fill context, load template, return Http object with the result of rendered template
 #def index(request):
 #    question_list = Question.objects.all()
@@ -47,8 +49,7 @@ def add_confirm(request):
     q_text = request.POST['question_text']
     a_text = request.POST['answer_text']
     tags = request.POST['tags']
-    tag_pattern = re.compile("[^ ,a-zA-Z0-9]")
-    if tag_pattern.search(tags):
+    if not tag_check(tags):
         tags = ""
     new_question = Question(question_text=q_text,answer_text=a_text,tags=tags,update_date=timezone.now())
     new_question.save()
@@ -61,8 +62,7 @@ def update_confirm(request, question_id):
     question.question_text=request.POST['question_text']
     question.answer_text=request.POST['answer_text']
     tags = request.POST['tags']
-    tag_pattern = re.compile("[^ ,a-zA-Z0-9]")
-    if not tag_pattern.search(tags):
+    if tag_check(tags):
         question.tags=tags
 
     question.save()
@@ -98,8 +98,19 @@ def reset_skipped():
             skipped = True
     return skipped
 
+def tag_check(tags):
+    tag_pattern = re.compile("[^ ,a-zA-Z0-9]")
+    if tag_pattern.search(tags):
+        return False #found invalid characters for Question.tag
+    return True
+
 def answer_setup(request):
+    global TAG_LIST
     reset_skipped()
+    tags = request.POST.get('tags', False)
+    if not tag_check(tags):
+        tags = ""
+    TAG_LIST = get_tag_list(tags) if tags else []
     #get setup info (tags to answer, etc.)
     #for actual setup, there will be an html page for this where you have to click continue and then it redirects to answer_question
     #^for now though, just redirect to answer_question
@@ -116,6 +127,18 @@ def process_answer(request, question_id):
         question.save()
     return HttpResponseRedirect(reverse('app_reRepeat:answer_question', args=(0,)))
 
+def tags_match(tags):
+    """
+    Returns True if at least one of the tags in the tags string argument match one of the tags in TAG_LIST or if TAG_LIST is empty because that means no tags are specified. Returns False otherwise.
+    """
+    if not TAG_LIST:
+        return True
+    tags = get_tag_list(tags)
+    for tag in TAG_LIST:
+        if tag in tags:
+            return True
+    return False
+
 def answer_question(request, show_answer):
     question_list = Question.objects.all()
     if not question_list.exists():
@@ -123,7 +146,7 @@ def answer_question(request, show_answer):
         #let the user know there are no questions
     next_question = -1
     for q in question_list:
-        if q.is_ready() and not q.is_skipped():
+        if q.is_ready() and not q.is_skipped() and tags_match(q.tags):
             if next_question == -1:
                 next_question = q
             elif q.review_percent() > next_question.review_percent():
