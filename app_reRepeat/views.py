@@ -107,10 +107,10 @@ def answer_setup(request):
 
 def process_answer(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
-    if request.POST['skip']:
+    if request.POST.get('skip', False):
         question.skip = True
         question.save()
-    elif request.POST['next']:
+    elif request.POST.get('next', False):
         #process the answer and update the question counter, etc:
         question.update_counter()
         question.save()
