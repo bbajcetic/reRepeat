@@ -8,5 +8,5 @@
  -finish reading the 7 step tutorial and integrating the way they do their views/urls into this app (since they initially show you a long way and then show you a very efficient way)
  -add test cases for functions, especially ones that update objects and deal with the main program logic
  -how can I keep updating my app while using it
- -don't think my question_text model attribute is limited at 200
  -cite where you got your information about memory retention from
+ -make an info page describing how the app works and its logic (e.g. how the answering orders the questions in terms of percentage of its review date from oldest to newest, etc.)
