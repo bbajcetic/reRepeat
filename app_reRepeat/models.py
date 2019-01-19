@@ -10,7 +10,7 @@ class Question(models.Model):
     #tags needs to be a string because tags is really a list of varying length, and database needs to have a set number of columns (also keep in mind the max length of 200 and maybe allow 10 tags of length 20 each or check length each time you add a tag)
     tags = models.CharField(max_length=200, blank=True)
     #counter is from 0-5 inclusive, with 0 being the worst
-    counter_level = models.IntegerField(default=1) #0-5
+    counter_level = models.IntegerField(default=0) #0-5
     periods = [1,5,13,31,75,200]
     skip = models.BooleanField(default=False)
     def is_skipped(self):
