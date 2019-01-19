@@ -5,7 +5,14 @@
 	{% if question_list %}
 		<ul>
 		{% for question in question_list %}
-		<li><a href="{% url 'app_reRepeat:show_question' question.id %}">{{ question.question_text }}</a></li>
+		{% if question.is_ready %}
+		<li><a style="color:#FF0000;" href="{% url 'app_reRepeat:show_question' question.id %}">{{ question.question_text }}</a></li>
+		{% elif question.is_soon %}
+		<li><a style="color:#FF8800;" href="{% url 'app_reRepeat:show_question' question.id %}">{{ question.question_text }}</a></li>
+		{% else %}
+		<li><a style="color:#007700;" href="{% url 'app_reRepeat:show_question' question.id %}">{{ question.question_text }}</a></li>
+		{% endif %}
+
 		{% endfor %}
 		</ul>
 	{% else %}

@@ -18,16 +18,32 @@ class Question(models.Model):
 
     #check if question will be ready to review soon:
     #def ready_soon(self):
-    def review_percent(self):
+
+    def days_left(self):
         """
-        Returns the percentage of time that has passed until the next review date
+        Returns the number of days remaining until the next review
         """
         SECONDS_PER_DAY = 86400
         #datetime.timedelta stores internally only days,seconds, microseconds
         seconds_since = (timezone.now() - self.update_date).total_seconds()
         days_since = seconds_since/SECONDS_PER_DAY
-        review_percent = days_since/self.periods[self.counter_level]
+        days_left = self.periods[self.counter_level] - days_since
+        return days_left
+
+    def review_percent(self):
+        """
+        Returns the percentage of time until the next review that has passed
+        """
+        current_period = self.periods[self.counter_level]
+        review_percent = (current_period-self.days_left())/current_period
         return review_percent
+
+    def is_soon(self):
+        num_days = 2
+        days_left = self.days_left()
+        if 0 < days_left < 2:
+            return True
+        return False
 
     def update_counter(self):
         """
@@ -46,9 +62,11 @@ class Question(models.Model):
         """
         Returns true if Question is ready to be reviewed, and false otherwise.
         """
-        period = self.periods[self.counter_level]
-        next_review = self.update_date + datetime.timedelta(days=period)
-        return timezone.now() >= next_review
+        days_left = self.days_left()
+        if days_left <= 0:
+            return True
+        return False
+
     def __str__(self):
         return self.question_text
 
