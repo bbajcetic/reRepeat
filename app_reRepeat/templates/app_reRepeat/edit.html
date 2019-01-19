@@ -2,16 +2,25 @@
 
 {% block content %}
 	<h4>View Questions</h4>
+	<font style="color:red">Red = Ready to review</font></br>
+	<font style="color:orange"> Orange = Ready to review in less than 2 days</font></br>
+	<font style="color:Green">Green = Not ready to review for at least 2 days</font></br>
+	<font style="color:Black">Black = Ready for review but overdue </font>
 	{% if question_list %}
 		<ul>
 		{% for question in question_list %}
-		{% if question.is_ready %}
-		<li><a style="color:#FF0000;" href="{% url 'app_reRepeat:show_question' question.id %}">{{ question.question_text }}</a></li>
+		<li>
+		{% if question.is_overdue %}
+		<a style="color:#000000;" href="{% url 'app_reRepeat:show_question' question.id %}">{{ question.question_text }}</a>
+		{% elif question.is_ready %}
+		<a style="color:#FF0000;" href="{% url 'app_reRepeat:show_question' question.id %}">{{ question.question_text }}</a>
 		{% elif question.is_soon %}
-		<li><a style="color:#FF8800;" href="{% url 'app_reRepeat:show_question' question.id %}">{{ question.question_text }}</a></li>
+		<a style="color:#FF6600;" href="{% url 'app_reRepeat:show_question' question.id %}">{{ question.question_text }}</a>
 		{% else %}
-		<li><a style="color:#007700;" href="{% url 'app_reRepeat:show_question' question.id %}">{{ question.question_text }}</a></li>
+		<a style="color:#007700;" href="{% url 'app_reRepeat:show_question' question.id %}">{{ question.question_text }}</a>
 		{% endif %}
+		{% if question.is_new %}<font style="color:green">(new)</font>{% endif %}
+		</li>
 
 		{% endfor %}
 		</ul>

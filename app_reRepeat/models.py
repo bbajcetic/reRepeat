@@ -13,6 +13,12 @@ class Question(models.Model):
     counter_level = models.IntegerField(default=0) #0-5
     periods = [1,5,13,31,75,200]
     skip = models.BooleanField(default=False)
+    def is_new(self):
+        """
+        Returns True if the question is new and hasn't been reviewed yet
+        """
+        return True if self.counter_level == 0 else False
+
     def is_skipped(self):
         return self.skip
 
@@ -41,18 +47,21 @@ class Question(models.Model):
     def is_soon(self):
         num_days = 2
         days_left = self.days_left()
-        if 0 < days_left < 2:
-            return True
-        return False
+        return True if 0 < days_left < 2 else False
+
+    def is_overdue(self):
+        review_percent = self.review_percent()
+        return True if review_percent >= 2 else False
 
     def update_counter(self):
         """
         This function is used when the user answers a question to update the counter based on the update_date and counter_level.
         """
         review_percent = self.review_percent()
-        if review_percent >= 3:
-            self.counter_level = 0 #reset counter if 3 times as long to review
-        elif review_percent >= 2:
+        #don't reset counter for now
+        #if review_percent >= 3:
+        #    self.counter_level = 0 #reset counter if 3 times as long to review
+        if review_percent >= 2:
             pass #keep counter the same if taking 2 times as long to review
         elif self.counter_level < len(self.periods)-1: 
             self.counter_level += 1 #increase counter_level
