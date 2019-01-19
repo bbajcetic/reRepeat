@@ -116,6 +116,13 @@ def answer_setup(request):
     #^for now though, just redirect to answer_question
     return HttpResponseRedirect(reverse('app_reRepeat:answer_question', args=(0,)))
 
+def process_answer_from_edit(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    if request.POST.get('next', False) and ( question.is_ready() or question.is_soon() ):
+        question.update_counter()
+        question.save()
+    return HttpResponseRedirect(reverse('app_reRepeat:edit'))
+    
 def process_answer(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     if request.POST.get('skip', False):
@@ -138,6 +145,11 @@ def tags_match(tags):
         if tag in tags:
             return True
     return False
+
+def answer_from_edit(request, question_id, show_answer):
+    question = get_object_or_404(Question, pk=question_id)
+    context = {'question':question, 'show_answer':show_answer,}
+    return render(request, 'app_reRepeat/answer_from_edit.html', context)
 
 def answer_question(request, show_answer):
     question_list = Question.objects.all()

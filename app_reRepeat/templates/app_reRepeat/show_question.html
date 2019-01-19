@@ -2,6 +2,8 @@
 {% block content %}
 	<h4>Edit Questions</h4>
 	Question: {{ question.question_text }}
-	</br>Answer: {{ question.answer_text }}
 	<p><a href="{% url 'app_reRepeat:edit_question' question.id %}">EDIT</a></p>
+	{% if question.is_soon or question.is_ready %}
+	<p><a href="{% url 'app_reRepeat:answer_from_edit' question.id 0 %}">ANSWER</a></p>
+	{% endif %}
 {% endblock %}

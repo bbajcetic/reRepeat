@@ -1,0 +1,23 @@
+{% extends 'app_reRepeat/base.html' %}
+
+<!-- called from views.answer_from_edit function -->
+{% block content %}
+	<h4>Answer Questions</h4>
+	{{ question.question_text }}
+	</br>
+	{% if show_answer != 1 %}
+		<form action="{% url 'app_reRepeat:answer_from_edit' question.id 1 %}" method="post">
+		{% csrf_token %}
+			<input type="submit" value="Show Answer">
+		</form>
+	{% else %}
+		Answer: {{ question.answer_text }}
+		<form action="{% url 'app_reRepeat:process_answer_from_edit' question.id %}" method="post">
+		{% csrf_token %}
+			<input type="submit" value="Reviewed" name="next">
+		</form>
+	{% endif %}
+
+{% endblock %}
+
+
