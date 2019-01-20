@@ -49,6 +49,10 @@ def get_tag_list(tag_string):
 def add_confirm(request):
     q_text = request.POST['question_text']
     a_text = request.POST['answer_text']
+    if not q_text or not a_text:
+        messages.add_message(request, messages.INFO, 'Question and answer fields must be filled')
+        return HttpResponseRedirect(reverse('app_reRepeat:add'))
+
     tags = request.POST['tags']
     if not tag_check(tags):
         tags = ""
@@ -61,8 +65,13 @@ def add_confirm(request):
 
 def update_confirm(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
-    question.question_text=request.POST['question_text']
-    question.answer_text=request.POST['answer_text']
+    q_text = request.POST['question_text']
+    a_text = request.POST['answer_text']
+    if not q_text or not a_text:
+        messages.add_message(request, messages.INFO, 'Question and answer fields must be filled')
+        return HttpResponseRedirect(reverse('app_reRepeat:edit_question', args=(question_id,)))
+    question.question_text = q_text
+    question.answer_text = a_text
     tags = request.POST['tags']
     if tag_check(tags):
         question.tags=tags
