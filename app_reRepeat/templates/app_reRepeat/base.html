@@ -1,4 +1,21 @@
 <p>reRepeat APP</p>
+<style>
+.msg {
+	padding: 15px;
+	background-color: #0000ff;
+	color:white;
+}
+</style
 {% block content %}
 {% endblock %}
 <p><a href="{% url 'app_reRepeat:home' %}">HOME</a></p>
+{% block error %}
+{% if messages %}
+{% for message in messages %}
+<div class="msg" onmouseover="this.style.visibility='hidden';">
+	<strong>{{ message }}</strong>
+</div>
+<br>
+{% endfor %}
+{% endif %}
+{% endblock %}

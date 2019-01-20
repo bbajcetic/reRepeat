@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
 from django.utils import timezone
+from django.contrib import messages
 from .models import Question
 import re
 
@@ -54,6 +55,7 @@ def add_confirm(request):
     new_question = Question(question_text=q_text,answer_text=a_text,tags=tags,update_date=timezone.now())
     new_question.save()
     new_id = new_question.pk
+    messages.add_message(request, messages.INFO, 'Question created!')
 
     return HttpResponseRedirect(reverse('app_reRepeat:show_question', args=(new_id,)))
 
@@ -64,8 +66,12 @@ def update_confirm(request, question_id):
     tags = request.POST['tags']
     if tag_check(tags):
         question.tags=tags
+    else:
+        messages.add_message(request, messages.INFO, 'Invalid tag given (no symbols allowed)')
+        return HttpResponseRedirect(reverse('app_reRepeat:edit_question', args=(question_id,)))
 
     question.save()
+    messages.add_message(request, messages.INFO, 'Question updated')
 
     return HttpResponseRedirect(reverse('app_reRepeat:show_question', args=(question_id,)))
 
@@ -83,8 +89,10 @@ def delete_question(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     if request.POST.get('delete', False):
         question.delete()
+        messages.add_message(request, messages.INFO, 'Question deleted!')
         return HttpResponseRedirect(reverse('app_reRepeat:edit'))
     elif request.POST.get('not_delete', False):
+        messages.add_message(request, messages.INFO, 'Question not deleted')
         return HttpResponseRedirect(reverse('app_reRepeat:edit_question', args=(question_id,)))
 
 def reset_skipped():
@@ -110,6 +118,7 @@ def answer_setup(request):
     tags = request.POST.get('tags', False)
     if not tag_check(tags):
         tags = ""
+        messages.add_message(request, messages.INFO, 'Invalid tag given (no symbols allowed)')
     TAG_LIST = get_tag_list(tags) if tags else []
     #get setup info (tags to answer, etc.)
     #for actual setup, there will be an html page for this where you have to click continue and then it redirects to answer_question
@@ -121,6 +130,7 @@ def process_answer_from_edit(request, question_id):
     if request.POST.get('next', False) and ( question.is_ready() or question.is_soon() ):
         question.update_counter()
         question.save()
+        messages.add_message(request, messages.INFO, 'Question reviewed!')
     return HttpResponseRedirect(reverse('app_reRepeat:edit'))
     
 def process_answer(request, question_id):
@@ -155,7 +165,7 @@ def answer_question(request, show_answer):
     question_list = Question.objects.all()
     if not question_list.exists():
         return HttpResponseRedirect(reverse('app_reRepeat:answer'))
-        #let the user know there are no questions
+        messages.add_message(request, messages.INFO, 'No questions exist yet!')
     next_question = -1
     for q in question_list:
         if q.is_ready() and not q.is_skipped() and tags_match(q.tags):
@@ -168,7 +178,7 @@ def answer_question(request, show_answer):
         if reset_skipped() == True:
             return HttpResponseRedirect(reverse('app_reRepeat:answer_question', args=(0,)))
         else:
-            #also return message for no questions to answer
+            messages.add_message(request, messages.INFO, 'No questions are ready for review')
             return HttpResponseRedirect(reverse('app_reRepeat:answer'))
     else:
         return render(request, 'app_reRepeat/answer_question.html', context)
