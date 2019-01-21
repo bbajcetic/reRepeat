@@ -1,52 +1,33 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from django.template import loader
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
+from django.views import generic
 from .models import Question
 import re
 
 TAG_LIST = []
 
-##first way: fill context, load template, return Http object with the result of rendered template
-#def index(request):
-#    question_list = Question.objects.all()
-#    context = {
-#            'question_list':question_list,
-#    }
-#    template = loader.get_template('app_reRepeat/index.html')
-#    return HttpResponse(template.render(context))
+class IndexView(generic.TemplateView):
+    template_name = 'app_reRepeat/index.html'
 
-##second way: (no longer need to import loader and HttpResponse) render function takes the request object, template, and dictionary/context as arguments and returns HttpResponse object of the given template rendered with the given context
-def index(request):
-    return render(request, 'app_reRepeat/index.html')
+class AddQuestionView(generic.TemplateView):
+    template_name = 'app_reRepeat/add.html'
 
-def answer_questions(request):
-    return render(request, 'app_reRepeat/answer.html')
+class AnswerQuestionView(generic.TemplateView):
+    template_name = 'app_reRepeat/answer.html'
 
-def add_questions(request):
-    question_list = Question.objects.all()
-    context = {'question_list':question_list,}
-    return render(request, 'app_reRepeat/add.html', context)
+class DisplayView(generic.list.ListView):
+    model = Question
+    template_name = 'app_reRepeat/edit.html'
+    context_object_name = 'question_list'
 
-def edit_questions(request):
-    question_list = Question.objects.all()
-    context = {'question_list':question_list,}
-    return render(request, 'app_reRepeat/edit.html', context)
+class ShowQuestionView(generic.detail.DetailView):
+    model = Question
+    template_name = 'app_reRepeat/show_question.html'
 
-def show_question(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    context = {'question':question,}
-    return render(request, 'app_reRepeat/show_question.html', context)
-
-def get_tag_list(tag_string):
-    tag_list = tag_string.lower().split(',')
-    tag_list = list(tag.replace(' ','') for tag in tag_list)
-    tag_list = list(filter(None, tag_list))
-    return tag_list
-
-def add_confirm(request):
+def add_confirm(request): #redirect
     q_text = request.POST['question_text']
     a_text = request.POST['answer_text']
     if not q_text or not a_text:
@@ -56,6 +37,7 @@ def add_confirm(request):
     tags = request.POST['tags']
     if not tag_check(tags):
         tags = ""
+        messages.add_message(request, messages.INFO, 'Invalid tag given (no tag added)')
     new_question = Question(question_text=q_text,answer_text=a_text,tags=tags,update_date=timezone.now())
     new_question.save()
     new_id = new_question.pk
@@ -63,7 +45,7 @@ def add_confirm(request):
 
     return HttpResponseRedirect(reverse('app_reRepeat:show_question', args=(new_id,)))
 
-def update_confirm(request, question_id):
+def update_confirm(request, question_id): #redirect
     question = get_object_or_404(Question, pk=question_id)
     q_text = request.POST['question_text']
     a_text = request.POST['answer_text']
@@ -84,17 +66,15 @@ def update_confirm(request, question_id):
 
     return HttpResponseRedirect(reverse('app_reRepeat:show_question', args=(question_id,)))
 
-def delete_confirm(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    context = {'question':question,}
-    return render(request, 'app_reRepeat/delete_confirm.html', context)
+class DeleteConfirmView(generic.detail.DetailView):
+    model = Question
+    template_name = 'app_reRepeat/delete_confirm.html'
 
-def edit_question(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    context = {'question':question,}
-    return render(request, 'app_reRepeat/edit_question.html', context)
+class EditQuestionView(generic.detail.DetailView):
+    model = Question
+    template_name = 'app_reRepeat/edit_question.html'
 
-def delete_question(request, question_id):
+def delete_question(request, question_id): #redirect
     question = get_object_or_404(Question, pk=question_id)
     if request.POST.get('delete', False):
         question.delete()
@@ -104,24 +84,7 @@ def delete_question(request, question_id):
         messages.add_message(request, messages.INFO, 'Question not deleted')
         return HttpResponseRedirect(reverse('app_reRepeat:edit_question', args=(question_id,)))
 
-def reset_skipped():
-    skipped = False
-    #reset all skipped questions to unskipped
-    question_list = Question.objects.all()
-    for q in question_list:
-        if q.skip == True:
-            q.skip = False
-            q.save()
-            skipped = True
-    return skipped
-
-def tag_check(tags):
-    tag_pattern = re.compile("[^ ,a-zA-Z0-9]")
-    if tag_pattern.search(tags):
-        return False #found invalid characters for Question.tag
-    return True
-
-def answer_setup(request):
+def answer_setup(request): #redirect
     global TAG_LIST
     reset_skipped()
     tags = request.POST.get('tags', False)
@@ -129,12 +92,10 @@ def answer_setup(request):
         tags = ""
         messages.add_message(request, messages.INFO, 'Invalid tag given (no symbols allowed)')
     TAG_LIST = get_tag_list(tags) if tags else []
-    #get setup info (tags to answer, etc.)
-    #for actual setup, there will be an html page for this where you have to click continue and then it redirects to answer_question
-    #^for now though, just redirect to answer_question
+
     return HttpResponseRedirect(reverse('app_reRepeat:answer_question', args=(0,)))
 
-def process_answer_from_edit(request, question_id):
+def process_answer_from_edit(request, question_id): #redirect
     question = get_object_or_404(Question, pk=question_id)
     if request.POST.get('next', False) and ( question.is_ready() or question.is_soon() ):
         question.update_counter()
@@ -142,7 +103,7 @@ def process_answer_from_edit(request, question_id):
         messages.add_message(request, messages.INFO, 'Question reviewed!')
     return HttpResponseRedirect(reverse('app_reRepeat:edit'))
     
-def process_answer(request, question_id):
+def process_answer(request, question_id): #redirect
     question = get_object_or_404(Question, pk=question_id)
     if request.POST.get('skip', False):
         question.skip = True
@@ -152,18 +113,6 @@ def process_answer(request, question_id):
         question.update_counter()
         question.save()
     return HttpResponseRedirect(reverse('app_reRepeat:answer_question', args=(0,)))
-
-def tags_match(tags):
-    """
-    Returns True if at least one of the tags in the tags string argument match one of the tags in TAG_LIST or if TAG_LIST is empty because that means no tags are specified. Returns False otherwise.
-    """
-    if not TAG_LIST:
-        return True
-    tags = get_tag_list(tags)
-    for tag in TAG_LIST:
-        if tag in tags:
-            return True
-    return False
 
 def answer_from_edit(request, question_id, show_answer):
     question = get_object_or_404(Question, pk=question_id)
@@ -191,4 +140,39 @@ def answer_question(request, show_answer):
             return HttpResponseRedirect(reverse('app_reRepeat:answer'))
     else:
         return render(request, 'app_reRepeat/answer_question.html', context)
+
+def reset_skipped():
+    skipped = False
+    #reset all skipped questions to unskipped
+    question_list = Question.objects.all()
+    for q in question_list:
+        if q.skip == True:
+            q.skip = False
+            q.save()
+            skipped = True
+    return skipped
+
+def get_tag_list(tag_string):
+    tag_list = tag_string.lower().split(',')
+    tag_list = list(tag.replace(' ','') for tag in tag_list)
+    tag_list = list(filter(None, tag_list))
+    return tag_list
+
+def tag_check(tags):
+    tag_pattern = re.compile("[^ ,a-zA-Z0-9]")
+    if tag_pattern.search(tags):
+        return False #found invalid characters for Question.tag
+    return True
+
+def tags_match(tags):
+    """
+    Returns True if at least one of the tags in the tags string argument match one of the tags in TAG_LIST or if TAG_LIST is empty because that means no tags are specified. Returns False otherwise.
+    """
+    if not TAG_LIST:
+        return True
+    tags = get_tag_list(tags)
+    for tag in TAG_LIST:
+        if tag in tags:
+            return True
+    return False
 
