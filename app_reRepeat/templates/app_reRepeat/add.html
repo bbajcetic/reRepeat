@@ -2,11 +2,9 @@
 
 {% block content %}
 	<h4>Add Questions</h4>
-		<form action="{% url 'app_reRepeat:add_confirm' %}" method="post">
-		{% csrf_token %}
-		<pre>Question: <textarea cols="40" rows="4" name="question_text"></textarea></pre>
-		<pre>Answer:   <textarea cols="40" rows="8" name="answer_text"></textarea></pre>
-		<pre>Tags:     <textarea cols="40" rows="1" name="tags"></textarea></pre>
+		<form action="{% url 'app_reRepeat:add' %}" method="post">
+			{% csrf_token %}
+			{{ form.as_p }}
 			<input type="submit" value="Create Question">
 		</form>
 {% endblock %}

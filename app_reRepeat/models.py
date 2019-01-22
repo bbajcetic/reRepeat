@@ -1,10 +1,11 @@
 from django.db import models
 import datetime
 from django.utils import timezone
+from django.forms import ModelForm
 
 class Question(models.Model):
-    question_text = models.TextField(max_length=200)
-    answer_text = models.TextField(max_length=1000)
+    question_text = models.TextField('Question',max_length=200)
+    answer_text = models.TextField('Answer',max_length=1000)
     #update_date is the last time the question was answered, and based on the counter_level, will determine the next time it should be answered
     update_date = models.DateTimeField('last answered')
     #tags needs to be a string because tags is really a list of varying length, and database needs to have a set number of columns (also keep in mind the max length of 200 and maybe allow 10 tags of length 20 each or check length each time you add a tag)
@@ -78,4 +79,9 @@ class Question(models.Model):
 
     def __str__(self):
         return self.question_text
+
+class QuestionForm(ModelForm):
+    class Meta:
+        model = Question
+        fields = ['question_text', 'answer_text', 'tags']
 

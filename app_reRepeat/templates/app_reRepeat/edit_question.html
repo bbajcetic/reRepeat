@@ -1,17 +1,11 @@
 {% extends 'app_reRepeat/base.html' %}
 {% block content %}
 <h4>Edit Question</h4>
-	<form action="{% url 'app_reRepeat:update_confirm' question.id %}" method="post">
-	{% csrf_token %}
-
-		<pre>Update Question: <textarea cols="40" rows="4" name="question_text">{{ question.question_text }}</textarea></pre>
-		<pre>Update Answer:   <textarea cols="40" rows="8" name="answer_text">{{ question.answer_text }}</textarea></pre>
-		<pre>Update Tags:     <textarea cols="40" rows="1" name="tags">{{ question.tags }}</textarea></pre>
+	<form action="{% url 'app_reRepeat:edit_question' question.id %}" method="post">
+		{% csrf_token %}
+		{{ form.as_p }}
 		<input type="submit" value="Update Question">
-	</form>
-	<form action="{% url 'app_reRepeat:delete_confirm' question.id %}">
-	{% csrf_token %}
-		<input type="submit" value="DELETE QUESTION">
+		<input type="submit" name="delete" value="DELETE QUESTION">
 	</form>
 
 {% endblock %}

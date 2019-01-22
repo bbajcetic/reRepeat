@@ -4,16 +4,13 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
 from django.views import generic
-from .models import Question
+from .models import Question, QuestionForm
 import re
 
 TAG_LIST = []
 
 class IndexView(generic.TemplateView):
     template_name = 'app_reRepeat/index.html'
-
-class AddQuestionView(generic.TemplateView):
-    template_name = 'app_reRepeat/add.html'
 
 class AnswerQuestionView(generic.TemplateView):
     template_name = 'app_reRepeat/answer.html'
@@ -27,62 +24,62 @@ class ShowQuestionView(generic.detail.DetailView):
     model = Question
     template_name = 'app_reRepeat/show_question.html'
 
-def add_confirm(request): #redirect
-    q_text = request.POST['question_text']
-    a_text = request.POST['answer_text']
-    if not q_text or not a_text:
-        messages.add_message(request, messages.INFO, 'Question and answer fields must be filled')
-        return HttpResponseRedirect(reverse('app_reRepeat:add'))
-
-    tags = request.POST['tags']
-    if not tag_check(tags):
-        tags = ""
-        messages.add_message(request, messages.INFO, 'Invalid tag given (no tag added)')
-    new_question = Question(question_text=q_text,answer_text=a_text,tags=tags,update_date=timezone.now())
-    new_question.save()
-    new_id = new_question.pk
-    messages.add_message(request, messages.INFO, 'Question created!')
-
-    return HttpResponseRedirect(reverse('app_reRepeat:show_question', args=(new_id,)))
-
-def update_confirm(request, question_id): #redirect
-    question = get_object_or_404(Question, pk=question_id)
-    q_text = request.POST['question_text']
-    a_text = request.POST['answer_text']
-    if not q_text or not a_text:
-        messages.add_message(request, messages.INFO, 'Question and answer fields must be filled')
-        return HttpResponseRedirect(reverse('app_reRepeat:edit_question', args=(question_id,)))
-    question.question_text = q_text
-    question.answer_text = a_text
-    tags = request.POST['tags']
-    if tag_check(tags):
-        question.tags=tags
+def AddQuestionView(request):
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            q_text = form.cleaned_data['question_text']
+            a_text = form.cleaned_data['answer_text']
+            tags = form.cleaned_data['tags']
+            if not tag_check(tags):
+                messages.add_message(request, messages.INFO, 'Invalid tag given')
+                return render(request, 'app_reRepeat/add.html', {'form':form})
+            new_question = Question(question_text=q_text,answer_text=a_text,tags=tags,update_date=timezone.now())
+            new_question.save()
+            new_id = new_question.pk
+            messages.add_message(request, messages.INFO, 'Question created!')
+            return HttpResponseRedirect(reverse('app_reRepeat:show_question', args=(new_id,)))
     else:
-        messages.add_message(request, messages.INFO, 'Invalid tag given (no symbols allowed)')
-        return HttpResponseRedirect(reverse('app_reRepeat:edit_question', args=(question_id,)))
+        form = QuestionForm()
 
-    question.save()
-    messages.add_message(request, messages.INFO, 'Question updated')
+    return render(request, 'app_reRepeat/add.html', {'form':form})
 
-    return HttpResponseRedirect(reverse('app_reRepeat:show_question', args=(question_id,)))
-
-class DeleteConfirmView(generic.detail.DetailView):
-    model = Question
-    template_name = 'app_reRepeat/delete_confirm.html'
-
-class EditQuestionView(generic.detail.DetailView):
-    model = Question
-    template_name = 'app_reRepeat/edit_question.html'
-
-def delete_question(request, question_id): #redirect
+def EditQuestionView(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
-    if request.POST.get('delete', False):
-        question.delete()
-        messages.add_message(request, messages.INFO, 'Question deleted!')
-        return HttpResponseRedirect(reverse('app_reRepeat:edit'))
-    elif request.POST.get('not_delete', False):
-        messages.add_message(request, messages.INFO, 'Question not deleted')
-        return HttpResponseRedirect(reverse('app_reRepeat:edit_question', args=(question_id,)))
+    if request.method == 'POST':
+        if request.POST.get('delete', False):
+            return HttpResponseRedirect(reverse('app_reRepeat:delete_question', args=(question_id,)))
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            q_text = form.cleaned_data['question_text']
+            a_text = form.cleaned_data['answer_text']
+            tags = form.cleaned_data['tags']
+            if not tag_check(tags):
+                messages.add_message(request, messages.INFO, 'Invalid tag given')
+                return render(request, 'app_reRepeat/edit_question.html', {'form':form, 'question':question})
+            question.question_text = q_text
+            question.answer_text = a_text
+            question.tags=tags
+            question.save()
+            messages.add_message(request, messages.INFO, 'Question updated')
+            return HttpResponseRedirect(reverse('app_reRepeat:show_question', args=(question_id,)))
+    else:
+        form = QuestionForm(instance=question)
+
+    return render(request, 'app_reRepeat/edit_question.html', {'form':form, 'question':question})
+
+def DeleteQuestionView(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    if request.method == 'POST':
+        if request.POST.get('delete', False):
+            question.delete()
+            messages.add_message(request, messages.INFO, 'Question deleted!')
+            return HttpResponseRedirect(reverse('app_reRepeat:edit'))
+        elif request.POST.get('not_delete', False):
+            messages.add_message(request, messages.INFO, 'Question not deleted')
+            return HttpResponseRedirect(reverse('app_reRepeat:edit_question', args=(question_id,)))
+
+    return render(request, 'app_reRepeat/delete_question.html', {'question':question})
 
 def answer_setup(request): #redirect
     global TAG_LIST
