@@ -6,8 +6,7 @@ app_name = 'app_reRepeat'
 
 urlpatterns = [
         path('', views.IndexView.as_view(), name="home"),
-        path('answer/', views.AnswerQuestionView.as_view(), name="answer"),
-        path('answer/setup/', views.answer_setup, name="answer_setup"),
+        path('answer/', views.AnswerView, name="answer"),
         path('answer_from_edit/<int:question_id>/<int:show_answer>/', views.answer_from_edit, name="answer_from_edit"),
         path('answer/<int:show_answer>/', views.answer_question, name="answer_question"),
         path('answer/process_answer/<int:question_id>/', views.process_answer, name="process_answer"),

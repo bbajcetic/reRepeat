@@ -2,7 +2,7 @@
 
 {% block content %}
 	<h4>Answer Questions</h4>
-	<form action="{% url 'app_reRepeat:answer_setup' %}" method="post">
+	<form action="{% url 'app_reRepeat:answer' %}" method="post">
 	{% csrf_token %}
 		Tags (leave blank for all questions): <input type="text" name="tags"><br>
 		<input type="submit" value="Start Answering">

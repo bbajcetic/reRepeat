@@ -12,8 +12,18 @@ TAG_LIST = []
 class IndexView(generic.TemplateView):
     template_name = 'app_reRepeat/index.html'
 
-class AnswerQuestionView(generic.TemplateView):
-    template_name = 'app_reRepeat/answer.html'
+def AnswerView(request):
+    global TAG_LIST
+    if request.method == 'POST':
+        reset_skipped()
+        tags = request.POST.get('tags', False)
+        if not tag_check(tags):
+            messages.add_message(request, messages.INFO, 'Invalid tag given (no symbols allowed)')
+            return render(request, 'app_reRepeat/answer.html')
+        TAG_LIST = get_tag_list(tags) if tags else []
+        return HttpResponseRedirect(reverse('app_reRepeat:answer_question', args=(0,)))
+
+    return render(request, 'app_reRepeat/answer.html')
 
 class DisplayView(generic.list.ListView):
     model = Question
@@ -80,17 +90,6 @@ def DeleteQuestionView(request, question_id):
             return HttpResponseRedirect(reverse('app_reRepeat:edit_question', args=(question_id,)))
 
     return render(request, 'app_reRepeat/delete_question.html', {'question':question})
-
-def answer_setup(request): #redirect
-    global TAG_LIST
-    reset_skipped()
-    tags = request.POST.get('tags', False)
-    if not tag_check(tags):
-        tags = ""
-        messages.add_message(request, messages.INFO, 'Invalid tag given (no symbols allowed)')
-    TAG_LIST = get_tag_list(tags) if tags else []
-
-    return HttpResponseRedirect(reverse('app_reRepeat:answer_question', args=(0,)))
 
 def process_answer_from_edit(request, question_id): #redirect
     question = get_object_or_404(Question, pk=question_id)
