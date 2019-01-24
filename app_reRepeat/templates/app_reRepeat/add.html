@@ -4,7 +4,9 @@
 	<h4>Add Questions</h4>
 		<form action="{% url 'app_reRepeat:add' %}" method="post">
 			{% csrf_token %}
-			{{ form.as_p }}
+			<table>
+			{{ form.as_table }}
+			</table>
 			<input type="submit" value="Create Question">
 		</form>
 {% endblock %}
