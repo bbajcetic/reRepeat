@@ -1,6 +1,5 @@
- -finish reading the 7 step tutorial and integrating the way they do their views/urls into this app (since they initially show you a long way and then show you a very efficient way)
- -add test cases for functions, especially ones that update objects and deal with the main program logic
  -there need to be able to be users with different accounts and their own questions and database tables, etc.
+ -add test cases for functions, especially ones that update objects and deal with the main program logic
  -favourite tags choice for user
  -how can I keep updating my app while using it
  -cite where you got your information about memory retention from
