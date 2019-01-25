@@ -52,6 +52,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'reRepeat.urls'
 
+#Redirects to app home
+LOGIN_REDIRECT_URL = 'app_reRepeat:home'
+LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'login'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

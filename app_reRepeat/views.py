@@ -4,14 +4,17 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
 from django.views import generic
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Question, QuestionForm
 import re
 
 TAG_LIST = []
 
-class IndexView(generic.TemplateView):
+class IndexView(LoginRequiredMixin, generic.TemplateView):
     template_name = 'app_reRepeat/index.html'
 
+@login_required
 def AnswerView(request):
     global TAG_LIST
     if request.method == 'POST':
@@ -25,15 +28,16 @@ def AnswerView(request):
 
     return render(request, 'app_reRepeat/answer.html')
 
-class DisplayView(generic.list.ListView):
+class DisplayView(LoginRequiredMixin, generic.list.ListView):
     model = Question
     template_name = 'app_reRepeat/edit.html'
     context_object_name = 'question_list'
 
-class ShowQuestionView(generic.detail.DetailView):
+class ShowQuestionView(LoginRequiredMixin, generic.detail.DetailView):
     model = Question
     template_name = 'app_reRepeat/show_question.html'
 
+@login_required
 def AddQuestionView(request):
     if request.method == 'POST':
         form = QuestionForm(request.POST)
@@ -54,6 +58,7 @@ def AddQuestionView(request):
 
     return render(request, 'app_reRepeat/add.html', {'form':form})
 
+@login_required
 def EditQuestionView(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     if request.method == 'POST':
@@ -78,6 +83,7 @@ def EditQuestionView(request, question_id):
 
     return render(request, 'app_reRepeat/edit_question.html', {'form':form, 'question':question})
 
+@login_required
 def DeleteQuestionView(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     if request.method == 'POST':
@@ -91,6 +97,7 @@ def DeleteQuestionView(request, question_id):
 
     return render(request, 'app_reRepeat/delete_question.html', {'question':question})
 
+@login_required
 def process_answer_from_edit(request, question_id): #redirect
     question = get_object_or_404(Question, pk=question_id)
     if request.POST.get('next', False) and ( question.is_ready() or question.is_soon() ):
@@ -99,6 +106,7 @@ def process_answer_from_edit(request, question_id): #redirect
         messages.add_message(request, messages.INFO, 'Question reviewed!')
     return HttpResponseRedirect(reverse('app_reRepeat:edit'))
     
+@login_required
 def process_answer(request, question_id): #redirect
     question = get_object_or_404(Question, pk=question_id)
     if request.POST.get('skip', False):
@@ -110,11 +118,13 @@ def process_answer(request, question_id): #redirect
         question.save()
     return HttpResponseRedirect(reverse('app_reRepeat:answer_question', args=(0,)))
 
+@login_required
 def answer_from_edit(request, question_id, show_answer):
     question = get_object_or_404(Question, pk=question_id)
     context = {'question':question, 'show_answer':show_answer,}
     return render(request, 'app_reRepeat/answer_from_edit.html', context)
 
+@login_required
 def answer_question(request, show_answer):
     question_list = Question.objects.all()
     if not question_list.exists():

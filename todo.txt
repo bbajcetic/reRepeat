@@ -6,3 +6,5 @@
  -make an info page describing how the app works and its logic (e.g. how the answering orders the questions in terms of percentage of its review date, etc.)
  -make all views class based (even redirect)
  -follow this class based view guide for all form handling: https://www.agiliq.com/blog/2019/01/django-createview/
+ -let user change their password
+ -let user reset password through email if they forgot theirs
