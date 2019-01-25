@@ -1,0 +1,11 @@
+{% extends "app_reRepeat/base.html" %}
+
+{% block content %}
+	<h4>Signup</h4>
+	<form method="post" action="{% url 'app_reRepeat:signup' %}">
+	{% csrf_token %}
+	{{ form.as_p }}
+	<input type="submit" value="Sign up!">
+	<!--<input type="submit" value="Create account">-->
+	</form>
+{% endblock %}

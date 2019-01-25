@@ -6,10 +6,27 @@ from django.contrib import messages
 from django.views import generic
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import views as auth_views
 from .models import Question, QuestionForm
 import re
 
 TAG_LIST = []
+
+def SignupView(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('app_reRepeat:home'))
+
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.INFO, 'User created!')
+            return HttpResponseRedirect(reverse('login'))
+    else:
+        form = UserCreationForm()
+
+    return render(request, 'app_reRepeat/signup.html', {'form':form})
 
 class IndexView(LoginRequiredMixin, generic.TemplateView):
     template_name = 'app_reRepeat/index.html'

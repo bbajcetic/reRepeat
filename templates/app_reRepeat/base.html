@@ -2,7 +2,8 @@
 | User: {{ user.get_username }} | 
 <a href="{% url 'logout' %}">Logout</a> |
 {% else %}
-<a href="{% url 'login' %}">Login</a>
+<a href="{% url 'login' %}">Login</a></br>
+<a href="{% url 'app_reRepeat:signup' %}">Signup</a>
 {% endif %}
 
 <p>reRepeat APP</p>
