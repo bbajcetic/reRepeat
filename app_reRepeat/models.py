@@ -84,4 +84,3 @@ class QuestionForm(ModelForm):
     class Meta:
         model = Question
         fields = ['question_text', 'answer_text', 'tags']
-

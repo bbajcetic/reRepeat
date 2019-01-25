@@ -81,7 +81,7 @@ def EditQuestionView(request, question_id):
     if request.method == 'POST':
         if request.POST.get('delete', False):
             return HttpResponseRedirect(reverse('app_reRepeat:delete_question', args=(question_id,)))
-        form = QuestionForm(request.POST)
+        form = QuestionForm(request.POST, instance=question)
         if form.is_valid():
             q_text = form.cleaned_data['question_text']
             a_text = form.cleaned_data['answer_text']
@@ -198,4 +198,3 @@ def tags_match(tags):
         if tag in tags:
             return True
     return False
-
