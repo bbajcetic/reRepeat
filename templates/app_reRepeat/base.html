@@ -14,9 +14,13 @@
 	color:white;
 }
 </style>
+
 {% block content %}
 {% endblock %}
-<p><a href="{% url 'app_reRepeat:home' %}">HOME</a></p>
+
+{% if user.is_authenticated %}
+	<p><a href="{% url 'app_reRepeat:home' %}">HOME</a></p>
+{% endif %}
 {% block error %}
 {% if messages %}
 {% for message in messages %}
