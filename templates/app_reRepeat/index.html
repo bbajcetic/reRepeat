@@ -1,6 +1,9 @@
-reRepeat APP
-<ul>
-<li><a href="{% url 'app_reRepeat:answer' %}">Answer Questions</a></li>
-<li><a href="{% url 'app_reRepeat:add' %}">Add Questions</a></li>
-<li><a href="{% url 'app_reRepeat:edit' %}">View Questions</a></li>
-</ul>
+{% extends "app_reRepeat/base.html" %}
+
+{% block content %}
+	<ul>
+	<li><a href="{% url 'app_reRepeat:answer' %}">Answer Questions</a></li>
+	<li><a href="{% url 'app_reRepeat:add' %}">Add Questions</a></li>
+	<li><a href="{% url 'app_reRepeat:edit' %}">View Questions</a></li>
+	</ul>
+{% endblock %}
