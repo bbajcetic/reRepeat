@@ -3,15 +3,16 @@
 <!-- called from views.answer_question function -->
 {% block content %}
 	<h4>Answer Questions</h4>
-	{{ question.question_text }}
-	</br>
+	<strong>Q:</strong> {{ question.question_text }}
+	</p>
 	{% if show_answer != 1 %}
 		<form action="{% url 'app_reRepeat:answer_question' 1 %}" method="post">
 		{% csrf_token %}
 			<input type="submit" name="show" value="Show Answer">
 		</form>
 	{% else %}
-		Answer: {{ question.answer_text }}
+		<strong>A:</strong> {{ question.answer_text }}
+		</p>
 		<form action="{% url 'app_reRepeat:process_answer' question.id %}" method="post">
 		{% csrf_token %}
 			<input type="submit" name="next" value="Reviewed">

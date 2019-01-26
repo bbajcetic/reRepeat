@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.models import User
 from .models import Question, QuestionForm
 import re
 
@@ -35,7 +36,7 @@ class IndexView(LoginRequiredMixin, generic.TemplateView):
 def AnswerView(request):
     global TAG_LIST
     if request.method == 'POST':
-        reset_skipped()
+        reset_skipped(request.user.id)
         tags = request.POST.get('tags', False)
         if not tag_check(tags):
             messages.add_message(request, messages.INFO, 'Invalid tag given (no symbols allowed)')
@@ -46,13 +47,20 @@ def AnswerView(request):
     return render(request, 'app_reRepeat/answer.html')
 
 class DisplayView(LoginRequiredMixin, generic.list.ListView):
-    model = Question
     template_name = 'app_reRepeat/edit.html'
     context_object_name = 'question_list'
+    def get_queryset(self):
+        user_id = self.request.user.id
+        queryset = Question.objects.filter(owner__id=user_id)
+        return queryset
 
-class ShowQuestionView(LoginRequiredMixin, generic.detail.DetailView):
-    model = Question
+@login_required
+def ShowQuestionView(request, pk):
+    question = get_object_or_404(Question, pk=pk)
+    if question.owner.id != request.user.id:
+        raise Http404("Question does not exist")
     template_name = 'app_reRepeat/show_question.html'
+    return render(request, template_name, {'question':question})
 
 @login_required
 def AddQuestionView(request):
@@ -65,7 +73,8 @@ def AddQuestionView(request):
             if not tag_check(tags):
                 messages.add_message(request, messages.INFO, 'Invalid tag given')
                 return render(request, 'app_reRepeat/add.html', {'form':form})
-            new_question = Question(question_text=q_text,answer_text=a_text,tags=tags,update_date=timezone.now())
+            user = User.objects.get(id=request.user.id)
+            new_question = Question(question_text=q_text,answer_text=a_text,tags=tags,update_date=timezone.now(),owner=user)
             new_question.save()
             new_id = new_question.pk
             messages.add_message(request, messages.INFO, 'Question created!')
@@ -76,11 +85,14 @@ def AddQuestionView(request):
     return render(request, 'app_reRepeat/add.html', {'form':form})
 
 @login_required
-def EditQuestionView(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
+def EditQuestionView(request, pk):
+    question = get_object_or_404(Question, pk=pk)
+    if question.owner.id != request.user.id:
+        raise Http404("Question does not exist")
+
     if request.method == 'POST':
         if request.POST.get('delete', False):
-            return HttpResponseRedirect(reverse('app_reRepeat:delete_question', args=(question_id,)))
+            return HttpResponseRedirect(reverse('app_reRepeat:delete_question', args=(pk,)))
         form = QuestionForm(request.POST, instance=question)
         if form.is_valid():
             q_text = form.cleaned_data['question_text']
@@ -94,15 +106,18 @@ def EditQuestionView(request, question_id):
             question.tags=tags
             question.save()
             messages.add_message(request, messages.INFO, 'Question updated')
-            return HttpResponseRedirect(reverse('app_reRepeat:show_question', args=(question_id,)))
+            return HttpResponseRedirect(reverse('app_reRepeat:show_question', args=(question.id,)))
     else:
         form = QuestionForm(instance=question)
 
     return render(request, 'app_reRepeat/edit_question.html', {'form':form, 'question':question})
 
 @login_required
-def DeleteQuestionView(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
+def DeleteQuestionView(request, pk):
+    question = get_object_or_404(Question, pk=pk)
+    if question.owner.id != request.user.id:
+        raise Http404("Question does not exist")
+
     if request.method == 'POST':
         if request.POST.get('delete', False):
             question.delete()
@@ -110,22 +125,35 @@ def DeleteQuestionView(request, question_id):
             return HttpResponseRedirect(reverse('app_reRepeat:edit'))
         elif request.POST.get('not_delete', False):
             messages.add_message(request, messages.INFO, 'Question not deleted')
-            return HttpResponseRedirect(reverse('app_reRepeat:edit_question', args=(question_id,)))
+            return HttpResponseRedirect(reverse('app_reRepeat:edit_question', args=(pk,)))
 
     return render(request, 'app_reRepeat/delete_question.html', {'question':question})
 
 @login_required
-def process_answer_from_edit(request, question_id): #redirect
-    question = get_object_or_404(Question, pk=question_id)
+def process_answer_from_edit(request, pk): #redirect
+    question = get_object_or_404(Question, pk=pk)
+    if question.owner.id != request.user.id:
+        raise Http404("Question does not exist")
+
     if request.POST.get('next', False) and ( question.is_ready() or question.is_soon() ):
         question.update_counter()
         question.save()
         messages.add_message(request, messages.INFO, 'Question reviewed!')
     return HttpResponseRedirect(reverse('app_reRepeat:edit'))
+
+@login_required
+def answer_from_edit(request, pk, show_answer):
+    question = get_object_or_404(Question, pk=pk)
+    if question.owner.id != request.user.id:
+        raise Http404("Question does not exist")
+    context = {'question':question, 'show_answer':show_answer,}
+    return render(request, 'app_reRepeat/answer_from_edit.html', context)
     
 @login_required
-def process_answer(request, question_id): #redirect
-    question = get_object_or_404(Question, pk=question_id)
+def process_answer(request, pk): #redirect
+    question = get_object_or_404(Question, pk=pk)
+    if question.owner.id != request.user.id:
+        raise Http404("Question does not exist")
     if request.POST.get('skip', False):
         question.skip = True
         question.save()
@@ -136,14 +164,8 @@ def process_answer(request, question_id): #redirect
     return HttpResponseRedirect(reverse('app_reRepeat:answer_question', args=(0,)))
 
 @login_required
-def answer_from_edit(request, question_id, show_answer):
-    question = get_object_or_404(Question, pk=question_id)
-    context = {'question':question, 'show_answer':show_answer,}
-    return render(request, 'app_reRepeat/answer_from_edit.html', context)
-
-@login_required
 def answer_question(request, show_answer):
-    question_list = Question.objects.all()
+    question_list = Question.objects.filter(owner__id=request.user.id)
     if not question_list.exists():
         return HttpResponseRedirect(reverse('app_reRepeat:answer'))
         messages.add_message(request, messages.INFO, 'No questions exist yet!')
@@ -156,7 +178,7 @@ def answer_question(request, show_answer):
                 next_question = q
     context = {'question':next_question, 'show_answer':show_answer,}
     if next_question == -1:
-        if reset_skipped() == True:
+        if reset_skipped(request.user.id) == True:
             return HttpResponseRedirect(reverse('app_reRepeat:answer_question', args=(0,)))
         else:
             messages.add_message(request, messages.INFO, 'No questions are ready for review')
@@ -164,10 +186,10 @@ def answer_question(request, show_answer):
     else:
         return render(request, 'app_reRepeat/answer_question.html', context)
 
-def reset_skipped():
+def reset_skipped(user):
     skipped = False
     #reset all skipped questions to unskipped
-    question_list = Question.objects.all()
+    question_list = Question.objects.filter(owner=user)
     for q in question_list:
         if q.skip == True:
             q.skip = False

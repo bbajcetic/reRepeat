@@ -2,10 +2,10 @@
 
 {% block content %}
 	<h4>View Questions</h4>
-	<font style="color:red">Red = Ready to review</font></br>
-	<font style="color:orange"> Orange = Ready to review in less than 2 days</font></br>
-	<font style="color:Green">Green = Not ready to review for at least 2 days</font></br>
-	<font style="color:Black">Black = Ready for review but overdue </font>
+	<font style="color:#FF0000">Red = Ready to review</font></br>
+	<font style="color:#FF6600"> Orange = Ready to review in less than 2 days</font></br>
+	<font style="color:#007700">Green = Not ready to review for at least 2 days</font></br>
+	<font style="color: #000000">Black = Ready for review but overdue </font>
 	{% if question_list %}
 		<ul>
 		{% for question in question_list %}
