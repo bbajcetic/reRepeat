@@ -1,10 +1,11 @@
- -there need to be able to be users with different accounts and their own questions and database tables, etc.
  -add test cases for functions, especially ones that update objects and deal with the main program logic
  -favourite tags choice for user
  -how can I keep updating my app while using it
  -cite where you got your information about memory retention from
  -make an info page describing how the app works and its logic (e.g. how the answering orders the questions in terms of percentage of its review date, etc.)
- -make all views class based (even redirect)
+ -make all views class based views (even redirect)
  -follow this class based view guide for all form handling: https://www.agiliq.com/blog/2019/01/django-createview/
  -let user change their password
  -let user reset password through email if they forgot theirs
+ -make tag search when answering questions be like this:
+ 	-e.g.search "cmpt" tag, it comes up, you click on it, and now the tag shows up on the right as a little box with "cmpt" inside and an (x) that you can remove the tag with. You can keep doing this to add as many tags as possible. Might be easier to make Tag a model object with a many-to-many relationship with Question objects
