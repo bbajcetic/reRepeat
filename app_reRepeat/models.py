@@ -3,6 +3,7 @@ import datetime
 from django.utils import timezone
 from django.forms import ModelForm
 from django.contrib.auth.models import User
+from math import floor
 
 class Question(models.Model):
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -15,6 +16,7 @@ class Question(models.Model):
     #counter is from 0-5 inclusive, with 0 being the worst
     counter_level = models.IntegerField(default=0) #0-5
     periods = [1,5,13,31,75,200]
+    overdue_ratio = 2
     skip = models.BooleanField(default=False)
     def is_new(self):
         """
@@ -27,6 +29,11 @@ class Question(models.Model):
 
     #check if question will be ready to review soon:
     #def ready_soon(self):
+
+    def hours_until_overdue(self):
+        days_since = self.periods[self.counter_level] - self.days_left()
+        days_until_overdue = self.periods[self.counter_level]*self.overdue_ratio - days_since
+        return floor(days_until_overdue * 24)
 
     def days_left(self):
         """
@@ -54,7 +61,7 @@ class Question(models.Model):
 
     def is_overdue(self):
         review_percent = self.review_percent()
-        return True if review_percent >= 2 else False
+        return True if review_percent >= self.overdue_ratio else False
 
     def update_counter(self):
         """
@@ -64,7 +71,7 @@ class Question(models.Model):
         #don't reset counter for now
         #if review_percent >= 3:
         #    self.counter_level = 0 #reset counter if 3 times as long to review
-        if review_percent >= 2:
+        if review_percent >= self.overdue_ratio:
             pass #keep counter the same if taking 2 times as long to review
         elif self.counter_level < len(self.periods)-1: 
             self.counter_level += 1 #increase counter_level
